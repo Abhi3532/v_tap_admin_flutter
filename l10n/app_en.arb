@@ -1,0 +1,10 @@
+{
+  "v_tap":"V Tap",
+  "please_enter_email": "Email can not be blank.",
+   "please_enter_valid_email": "Email format is incorrect.",
+   "please_enter_password": "Password can not be blank.",
+   "password_must_more_than_8": "Password must be 8 or more characters long.",
+   "email_address": "Email address",
+   "password": "Password",
+   "sign_in" : "Sign In"
+}

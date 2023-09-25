@@ -3,6 +3,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:sidebarx/sidebarx.dart';
 import 'package:v_tap_admin_flutter/core/navigator/app_router.gr.dart';
 import 'package:v_tap_admin_flutter/core/theme/app_colors.dart';
 import 'package:v_tap_admin_flutter/models/user_data_model.dart';
@@ -19,12 +20,23 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool isProcess = false;
   TextEditingController searchController = TextEditingController();
+  int selectedIndex = 0;
+
+  List<UserDataModel> userList = [];
   List<UserDataModel> searchUsersList = [];
   late AppLocalizations appLocalizations;
+  List<String> params = [
+    "Total Users",
+    "Total Downloads",
+    "Total Revenue",
+    "Card Purchased",
+    "Total Products"
+  ];
+  List<String> ans = ["23", "20", "560", "18", "3"];
 
   @override
   void initState() {
-    searchUsersList = [
+    userList = [
       UserDataModel(
           id: "dfgdfgd",
           name: "test user 1",
@@ -86,6 +98,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           phone: "123456790",
           isDisable: false),
     ];
+    searchUsersList.addAll(userList);
     super.initState();
   }
 
@@ -95,41 +108,65 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Scaffold(
       body: Row(
         children: [
-          SizedBox(
-            width: 60,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 10, bottom: 50),
-              child: Column(
-                children: [
-                  const CircleAvatar(
-                    radius: 20,
-                    child: Text('Logo'),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.supervised_user_circle,
-                          color: ColorConstants.yellow1)),
-                  IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.add_circle_outlined,
-                          color: ColorConstants.yellow1)),
-                  const Spacer(),
-                  IconButton(
-                      onPressed: () {
-                        context.router.replace(const LoginRoute());
-                      },
-                      icon: const Icon(Icons.login,
-                          color: ColorConstants.yellow1))
-                ],
+          Column(
+            children: [
+              const SizedBox(
+                height: 20,
               ),
-            ),
+              const CircleAvatar(
+                radius: 50,
+                child: Text('Logo'),
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              Expanded(
+                child: SizedBox(
+                  width: 150,
+                  child: SidebarX(
+                    controller:
+                        SidebarXController(selectedIndex: selectedIndex, extended: true),
+                    showToggleButton: false,
+                    theme: const SidebarXTheme(
+                        selectedIconTheme:
+                            IconThemeData(color: ColorConstants.yellow1),
+                        selectedTextStyle:
+                            TextStyle(color: ColorConstants.yellow1)),
+                    items: [
+                      SidebarXItem(
+                          icon: Icons.dashboard,
+                          label: 'Dashboard',
+                          onTap: () {
+                            selectedIndex = 0;
+                            setState(() {});
+                          }),
+                      SidebarXItem(
+                          icon: Icons.supervised_user_circle,
+                          label: 'Users',
+                          onTap: () {
+                            selectedIndex = 1;
+                            setState(() {});
+                          }),
+                    ],
+                    footerItems: [
+                      SidebarXItem(
+                          icon: Icons.logout,
+                          label: 'Logout',
+                          onTap: () {
+                            context.router.replace(const LoginRoute());
+                          }),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 40,
+              ),
+            ],
           ),
           Container(
-            width: 2,
-            color: ColorConstants.black1,
+            width: 1,
+            color: Colors.black,
           ),
           Expanded(
             child: Column(
@@ -165,7 +202,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               height: 30,
                             ),
                             Expanded(
-                              child: usersListTable(),
+                              child: (selectedIndex == 1)
+                                  ? usersListTable()
+                                  : dashBoard(),
                             ),
                           ],
                         ),
@@ -212,9 +251,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             bottomMargin: 40,
             columns: [
               DataColumn2(label: tableLabel("Sr. No."), fixedWidth: 100),
-              DataColumn2(label: tableLabel("ID"), fixedWidth: 230),
-              DataColumn2(label: tableLabel("Name"), fixedWidth: 230),
-              DataColumn2(label: tableLabel("Phone"), fixedWidth: 230),
+              DataColumn2(label: tableLabel("ID"), fixedWidth: 200),
+              DataColumn2(label: tableLabel("Name"), fixedWidth: 200),
+              DataColumn2(label: tableLabel("Phone"), fixedWidth: 200),
               DataColumn2(
                   label: Center(child: tableLabel("Disable")), fixedWidth: 140),
             ],
@@ -240,6 +279,51 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           DataCell(_buildForDeleteSwitch(
                               index, searchUsersList[index])),
                         ]))));
+  }
+
+  Widget dashBoard() {
+    return Wrap(
+      children: List.generate(
+          params.length,
+          (index) => Container(
+                width: 250,
+                height: 150,
+                margin: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        ColorConstants.blue1,
+                        ColorConstants.blue1.withOpacity(0.5)
+                      ]),
+                  color: ColorConstants.blue1,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    width: 1.5,
+                    color: ColorConstants.yellow1,
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      params[index],
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(ans[index],
+                        style: const TextStyle(color: Colors.white))
+                  ],
+                ),
+              )),
+    );
   }
 
   tableLabel(String text) {
@@ -309,12 +393,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-// void _searchUsers(String text) {
-//   searchUsersList = userListhere((userName) {
-//     final titleLower = userName.name!.toLowerCase();
-//     final searchLower = text.toLowerCase();
-//     return titleLower.contains(searchLower);
-//   }).toList();
-//   setState(() {});
-// }
+  void _searchUsers(String text) {
+    searchUsersList = userList.where((userName) {
+      final titleLower = userName.name.toLowerCase();
+      final searchLower = text.toLowerCase();
+      return titleLower.contains(searchLower);
+    }).toList();
+    setState(() {});
+  }
 }
